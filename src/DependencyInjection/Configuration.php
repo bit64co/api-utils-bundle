@@ -28,7 +28,6 @@ class Configuration implements ConfigurationInterface {
 				->arrayNode('view_handlers')
 					->info('Available view resolvers for controller results')
 					->isRequired()
-					->useAttributeAsKey()
 					->children()
 						->booleanNode('json_array')
 							->isRequired()
