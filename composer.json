@@ -1,5 +1,5 @@
 {
-	"name": "bit64lib/api-utils-bundle",
+	"name": "bit64co/api-utils-bundle",
 	"description": "API utility bundle for Symfony",
 	"type": "symfony-bundle",
 	"license": "MIT",
