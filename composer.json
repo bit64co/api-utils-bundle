@@ -1,0 +1,23 @@
+{
+	"name": "bit64lib/api-utils-bundle",
+	"description": "API utility bundle for Symfony",
+	"type": "symfony-bundle",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Bit 64 Solutions",
+			"homepage": "https://www.bit64.co"
+		},
+		{
+			"name": "Warren Heyneke"
+		}
+	],
+	"require": {
+		"php": ">=7.2"
+	},
+	"autoload": {
+		"psr-4": {
+			"Bit64\\Bundle\\ApiUtilsBundle\\": "src/"
+		}
+	}
+}

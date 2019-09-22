@@ -1,0 +1,7 @@
+
+services:
+
+  Bit64\Bundle\ApiUtilsBundle\EventListener:
+      autowire: true
+      autoconfigure: true
+      public: false
