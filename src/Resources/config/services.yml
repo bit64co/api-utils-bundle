@@ -1,7 +1,15 @@
 
 services:
 
-  Bit64\Bundle\ApiUtilsBundle\EventListener:
-      autowire: true
-      autoconfigure: true
-      public: false
+    Bit64\Bundle\ApiUtilsBundle\EventListener\:
+        resource: '../../../src/EventListener'
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    Bit64\Bundle\ApiUtilsBundle\Configurator\:
+        resource: '../../../src/Configurator'
+        exclude: '../../../src/Configurator/{AbstractConfigurator.php}'
+        autowire: true
+        autoconfigure: true
+        public: false

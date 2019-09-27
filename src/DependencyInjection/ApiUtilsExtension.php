@@ -10,6 +10,10 @@
 
 namespace Bit64\Bundle\ApiUtilsBundle\DependencyInjection;
 
+use Bit64\Bundle\ApiUtilsBundle\Configurator\AccessControl;
+use Bit64\Bundle\ApiUtilsBundle\Configurator\ContentControl;
+use Bit64\Bundle\ApiUtilsBundle\EventListener\ResponseSubscriber;
+use Bit64\Bundle\ApiUtilsBundle\EventListener\ViewSubscriber;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
@@ -27,6 +31,11 @@ class ApiUtilsExtension extends Extension {
 
 		$loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
 		$loader->load('services.yml');
+
+		$container->getDefinition(AccessControl::class)->setArgument(0, $config);
+		$container->getDefinition(ContentControl::class)->setArgument(0, $config);
+
+		$container->getDefinition(ViewSubscriber::class)->setArgument(0, $config);
 
 	}
 
