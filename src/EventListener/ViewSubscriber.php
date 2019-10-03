@@ -21,10 +21,10 @@ use Symfony\Component\HttpKernel\KernelEvents;
  */
 class ViewSubscriber implements EventSubscriberInterface {
 
-	private $configs;
+	private $config;
 
 	public function __construct(array $configs) {
-		$this->configs = [];
+		$this->config = $configs['view_handlers'] ?? [];
 	}
 
 	public static function getSubscribedEvents(): array {
@@ -35,16 +35,15 @@ class ViewSubscriber implements EventSubscriberInterface {
 
 	public function onKernelView(GetResponseForControllerResultEvent $event): void {
 
-		$cfg = isset($this->configs['view_handlers']) ? $this->configs['view_handlers'] : [];
 		$result = $event->getControllerResult();
 		$request = $event->getRequest();
 		$format = $request->get('_format');
 
-		if ('json' == $format || null === $format) {
+		if ('json' == $format) {
 
 			if (
-				((!isset($cfg['json_array']) || $cfg['json_array']) && is_array($result)) ||
-				((!isset($cfg['json_object']) || $cfg['json_object']) && $result instanceof JsonSerializable)
+				(true === ($this->config['json_array'] ?? false) && is_array($result)) ||
+				(true === ($this->config['json_object'] ?? false) && $result instanceof JsonSerializable)
 			) {
 				$event->setResponse(new JsonResponse($result));
 			}

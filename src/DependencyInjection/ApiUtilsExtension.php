@@ -12,6 +12,7 @@ namespace Bit64\Bundle\ApiUtilsBundle\DependencyInjection;
 
 use Bit64\Bundle\ApiUtilsBundle\Configurator\AccessControl;
 use Bit64\Bundle\ApiUtilsBundle\Configurator\ContentControl;
+use Bit64\Bundle\ApiUtilsBundle\EventListener\ExceptionSubscriber;
 use Bit64\Bundle\ApiUtilsBundle\EventListener\ResponseSubscriber;
 use Bit64\Bundle\ApiUtilsBundle\EventListener\ViewSubscriber;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -34,7 +35,7 @@ class ApiUtilsExtension extends Extension {
 
 		$container->getDefinition(AccessControl::class)->setArgument(0, $config);
 		$container->getDefinition(ContentControl::class)->setArgument(0, $config);
-
+		$container->getDefinition(ExceptionSubscriber::class)->setArgument(0, $config);
 		$container->getDefinition(ViewSubscriber::class)->setArgument(0, $config);
 
 	}
