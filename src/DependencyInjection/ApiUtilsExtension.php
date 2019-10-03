@@ -10,15 +10,12 @@
 
 namespace Bit64\Bundle\ApiUtilsBundle\DependencyInjection;
 
-use Bit64\Bundle\ApiUtilsBundle\Configurator\AccessControl;
-use Bit64\Bundle\ApiUtilsBundle\Configurator\ContentControl;
-use Bit64\Bundle\ApiUtilsBundle\EventListener\ExceptionSubscriber;
-use Bit64\Bundle\ApiUtilsBundle\EventListener\ResponseSubscriber;
-use Bit64\Bundle\ApiUtilsBundle\EventListener\ViewSubscriber;
+use Bit64\Bundle\ApiUtilsBundle\Services\ApiUtilities;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * @author Warren Heyneke <hello@bit64.co>
@@ -29,14 +26,28 @@ class ApiUtilsExtension extends Extension {
 
 		$configuration = new Configuration;
 		$config = $this->processConfiguration($configuration, $configs);
+		$this->registerResponseOverridesConfig($container->getParameter('kernel.project_dir'), $config);
 
 		$loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
-		$loader->load('services.yml');
+		$loader->load('services.yaml');
 
-		$container->getDefinition(AccessControl::class)->setArgument(0, $config);
-		$container->getDefinition(ContentControl::class)->setArgument(0, $config);
-		$container->getDefinition(ExceptionSubscriber::class)->setArgument(0, $config);
-		$container->getDefinition(ViewSubscriber::class)->setArgument(0, $config);
+		$container->getDefinition(ApiUtilities::class)->setArgument(0, $config);
+
+	}
+
+	private function registerResponseOverridesConfig(string $project_dir, array &$config): void {
+
+		# First check if {project_dir}/config/exceptions/error_response_overrides.yaml exists
+		$error_response_overrides_file = realpath(sprintf("%s/config/exceptions/error_response_overrides.yaml", $project_dir));
+
+		if (false === $error_response_overrides_file) {
+
+			# Fallback to the bundle default found
+			$error_response_overrides_file = realpath(sprintf("%s/../Resources/config/exceptions/error_response_overrides.yaml", __DIR__));
+
+		}
+
+		$config['exceptions'] = array_merge($config['exceptions'] ?? [], Yaml::parseFile($error_response_overrides_file));
 
 	}
 

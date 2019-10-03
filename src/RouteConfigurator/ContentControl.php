@@ -8,21 +8,21 @@
  * file that was distributed with this source code.
 */
 
-namespace Bit64\Bundle\ApiUtilsBundle\Configurator;
+namespace Bit64\Bundle\ApiUtilsBundle\RouteConfigurator;
 
-use Bit64\Bundle\ApiUtilsBundle\Annotation\AccessControl as Annotation;
+use Bit64\Bundle\ApiUtilsBundle\Annotation\ContentControl as Annotation;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @author Warren Heyneke <hello@bit64.co>
  */
-final class AccessControl extends AbstractConfigurator {
+final class ContentControl extends AbstractRouteConfigurator {
 
 	public function getRouteConfiguration(Request $request): array {
 
 		$annotations = $config = [];
 
-		if (is_array($ac = $request->attributes->get('_access_control', []))) {
+		if (is_array($ac = $request->attributes->get('_content_control', []))) {
 			foreach ($ac as $k => $v) {
 				$config[$k] = $v;
 			}
@@ -45,12 +45,7 @@ final class AccessControl extends AbstractConfigurator {
 
 		}
 
-		foreach (['allow_headers', 'expose_headers'] as $multiple) {
-			$config[$multiple] = array_unique(array_merge($config[$multiple] ?? [], $annotations[$multiple] ?? []));
-			unset($annotations[$multiple]);
-		}
-
-		return array_merge($this->getConfig('access_control'), $config, $annotations);
+		return array_merge($this->getConfig('content_control'), $config, $annotations);
 
 	}
 

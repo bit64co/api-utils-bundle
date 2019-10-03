@@ -10,8 +10,8 @@
 
 namespace Bit64\Bundle\ApiUtilsBundle\EventListener;
 
-use Bit64\Bundle\ApiUtilsBundle\Configurator\AccessControl;
-use Bit64\Bundle\ApiUtilsBundle\Utils\AutoPreflightResponse;
+use Bit64\Bundle\ApiUtilsBundle\Services\ApiUtilities;
+use Bit64\Bundle\ApiUtilsBundle\Http\AutoPreflightResponse;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
@@ -25,10 +25,10 @@ use Symfony\Component\Routing\RouterInterface;
  */
 class AccessControlSubscriber implements EventSubscriberInterface {
 
-	private $config, $matcher, $router, $reader;
+	private $utils, $matcher, $router, $reader;
 
-	public function __construct(UrlMatcherInterface $matcher, RouterInterface $router, AccessControl $configurator) {
-		$this->config = $configurator;
+	public function __construct(UrlMatcherInterface $matcher, RouterInterface $router, ApiUtilities $utils) {
+		$this->utils = $utils;
 		$this->matcher = $matcher;
 		$this->router = $router;
 	}
@@ -52,7 +52,7 @@ class AccessControlSubscriber implements EventSubscriberInterface {
 			$params = $this->matcher->matchRequest($request);
 			$lookup = $request->duplicate();
 			$lookup->attributes->replace($params);
-			$config = $this->config->getRouteConfiguration($lookup);
+			$config = $this->utils->getAccessControlConfigurationForRoute($lookup);
 
 			if ($config['auto_preflight'] && isset($params['_route'])) {
 
@@ -84,7 +84,7 @@ class AccessControlSubscriber implements EventSubscriberInterface {
 			}
 		} else {
 			# Remove preflight configs while not in pre-flight mode
-			$config = $this->config->getRouteConfiguration($request);
+			$config = $this->utils->getAccessControlConfigurationForRoute($request);
 			unset($config['allow_headers']);
 			unset($config['allow_methods']);
 			unset($config['max_age']);

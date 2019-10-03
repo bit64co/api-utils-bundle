@@ -10,7 +10,7 @@
 
 namespace Bit64\Bundle\ApiUtilsBundle\EventListener;
 
-use Bit64\Bundle\ApiUtilsBundle\Configurator\ContentControl;
+use Bit64\Bundle\ApiUtilsBundle\Services\ApiUtilities;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,10 +24,10 @@ use Symfony\Component\HttpKernel\KernelEvents;
  */
 class ContentControlSubscriber implements EventSubscriberInterface {
 
-	private $config;
+	private $utils;
 
-	public function __construct(ContentControl $configurator) {
-		$this->config = $configurator;
+	public function __construct(ApiUtilities $utils) {
+		$this->utils = $utils;
 	}
 
 	public static function getSubscribedEvents(): array {
@@ -45,7 +45,7 @@ class ContentControlSubscriber implements EventSubscriberInterface {
 	public function parseRequestContent(GetResponseEvent $event): void {
 		$request = $event->getRequest();
 		if ($request->headers->has('Content-Type')) {
-			$config = $this->config->getRouteConfiguration($request);
+			$config = $this->utils->getContentControlConfigurationForRoute($request);
 			if ($config['parse_request_data'] ?? false) {
 				$type = $request->headers->get('Content-Type');
 				switch (true) {
@@ -61,7 +61,7 @@ class ContentControlSubscriber implements EventSubscriberInterface {
 		$response = $event->getResponse();
 		if ($response instanceof JsonResponse) {
 			$request = $event->getRequest();
-			$config = $this->config->getRouteConfiguration($request);
+			$config = $this->utils->getContentControlConfigurationForRoute($request);
 			if ($config['json_pretty_print'] ?? false) {
 				$response->setEncodingOptions($response->getEncodingOptions() | JSON_PRETTY_PRINT);
 			}
@@ -75,7 +75,7 @@ class ContentControlSubscriber implements EventSubscriberInterface {
 
 		if (!$response->headers->has('Content-Encoding') && $request->headers->has('Accept-Encoding')) {
 
-			$config = $this->config->getRouteConfiguration($request);
+			$config = $this->utils->getContentControlConfigurationForRoute($request);
 			$modes = $config['response_encoding'] ?? [];
 			if (!is_array($modes)) {
 				$modes = array_filter(array_map('strtolower', array_map('trim', explode(',', $modes))));

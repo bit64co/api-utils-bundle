@@ -10,6 +10,7 @@
 
 namespace Bit64\Bundle\ApiUtilsBundle\EventListener;
 
+use Bit64\Bundle\ApiUtilsBundle\Services\ApiUtilities;
 use JsonSerializable;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -23,8 +24,8 @@ class ViewSubscriber implements EventSubscriberInterface {
 
 	private $config;
 
-	public function __construct(array $configs) {
-		$this->config = $configs['view_handlers'] ?? [];
+	public function __construct(ApiUtilities $utils) {
+		$this->config = $utils->getConfigNode('view_handlers');
 	}
 
 	public static function getSubscribedEvents(): array {

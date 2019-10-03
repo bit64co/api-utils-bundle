@@ -8,15 +8,16 @@
  * file that was distributed with this source code.
 */
 
-namespace Bit64\Bundle\ApiUtilsBundle\Configurator;
+namespace Bit64\Bundle\ApiUtilsBundle\RouteConfigurator;
 
 use Doctrine\Common\Annotations\Reader;
 use ReflectionClass;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @author Warren Heyneke <hello@bit64.co>
  */
-abstract class AbstractConfigurator {
+abstract class AbstractRouteConfigurator {
 
 	private $configs, $reader;
 
@@ -25,18 +26,20 @@ abstract class AbstractConfigurator {
 		$this->reader = $reader;
 	}
 
-	public function getConfig(string $node): array {
+	protected function getConfig(string $node): array {
 		return $this->configs[$node] ?? [];
 	}
 
-	public function getClassAnnotation(string $class, string $annotation) {
+	protected function getClassAnnotation(string $class, string $annotation) {
 		$reflectionClass = new ReflectionClass($class);
 		return $this->reader->getClassAnnotation($reflectionClass, $annotation);
 	}
 
-	public function getMethodAnnotation(string $class, string $method, string $annotation) {
+	protected function getMethodAnnotation(string $class, string $method, string $annotation) {
 		$reflectionClass = new ReflectionClass($class);
 		return $this->reader->getMethodAnnotation($reflectionClass->getMethod($method), $annotation);
 	}
+
+	abstract public function getRouteConfiguration(Request $request): array;
 
 }

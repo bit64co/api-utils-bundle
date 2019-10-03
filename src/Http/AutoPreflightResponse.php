@@ -8,7 +8,7 @@
  * file that was distributed with this source code.
 */
 
-namespace Bit64\Bundle\ApiUtilsBundle\Utils;
+namespace Bit64\Bundle\ApiUtilsBundle\Http;
 
 use Symfony\Component\HttpFoundation\Response;
 

@@ -2,6 +2,7 @@
 
 namespace Bit64\Bundle\ApiUtilsBundle\EventListener;
 
+use Bit64\Bundle\ApiUtilsBundle\Services\ApiUtilities;
 use Exception;
 use JsonSerializable;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -10,9 +11,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Symfony\Component\Yaml\Yaml;
 
 /**
  * Exception Subscriber
@@ -22,24 +21,12 @@ use Symfony\Component\Yaml\Yaml;
  */
 class ExceptionSubscriber implements EventSubscriberInterface {
 
-	private $config = [], $translator, $exceptions = [];
+	private $config = [], $translator;
 
-	public function __construct(array $configs, KernelInterface $kernel, TranslatorInterface $translator = null) {
+	public function __construct(ApiUtilities $utils, TranslatorInterface $translator = null) {
 
-		$this->config = $configs['exceptions'] ?? [];
+		$this->config = $utils->getConfigNode('exceptions');
 		$this->translator = $translator;
-
-		# First check if %kernel.project_dir%/config/api_utils/exceptions.yml exists
-		$file = realpath(sprintf("%s/config/api_utils/exceptions.yml", $kernel->getProjectDir()));
-
-		if (false === $file) {
-
-			# Fallback to the bundle default found
-			$file = realpath(sprintf("%s/../Resources/config/exceptions.yml", __DIR__));
-
-		}
-
-		$this->exceptions = Yaml::parseFile($file);
 
 	}
 
@@ -54,7 +41,7 @@ class ExceptionSubscriber implements EventSubscriberInterface {
 		$request = $event->getRequest();
 		$format = $request->get('_format');
 
-		if ('json' == $format && ($this->config['json_error_responses'] ?? true)) {
+		if (('json' === $format || null === $format) && true === ($this->config['json_error_responses'] ?? true)) {
 			$event->setResponse($this->createJsonExceptionResponse($event->getException()));
 		}
 
@@ -98,10 +85,10 @@ class ExceptionSubscriber implements EventSubscriberInterface {
 
 		}
 
-		foreach ($this->exceptions['overrides'] ?? [] as $e) {
+		foreach ($this->config['overrides'] ?? [] as $e) {
 			if (
 				in_array(get_class($exception), $e['exceptions'] ?? []) ||
-				(($e['check_previous'] ?? false) && count(array_intersect($previous_stack, $e['exceptions'] ?? [])))
+				(($e['check_previous_stack'] ?? false) && count(array_intersect($previous_stack, $e['exceptions'] ?? [])))
 			) {
 				$data = [
 					'status_code' => preg_replace('/^{code}$/', $data['status_code'], $e['status_code'] ?? $data['status_code']),
