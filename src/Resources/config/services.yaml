@@ -11,3 +11,6 @@ services:
 
     Bit64\Bundle\ApiUtilsBundle\Services\:
         resource: '../../../src/Services'
+
+    Bit64\Bundle\ApiUtilsBundle\Security\AuthenticationProvider:
+    Bit64\Bundle\ApiUtilsBundle\Security\FirewallListener:

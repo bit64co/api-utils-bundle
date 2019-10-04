@@ -10,11 +10,18 @@
 
 namespace Bit64\Bundle\ApiUtilsBundle;
 
+use Bit64\Bundle\ApiUtilsBundle\Security\SecurityFactory;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 /**
  * @author Warren Heyneke <hello@bit64.co>
  */
 class ApiUtilsBundle extends Bundle {
+
+	public function build(ContainerBuilder $container) {
+		$extension = $container->getExtension('security');
+		$extension->addSecurityListenerFactory(new SecurityFactory);
+	}
 
 }

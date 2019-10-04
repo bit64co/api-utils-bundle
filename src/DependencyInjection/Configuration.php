@@ -78,6 +78,7 @@ class Configuration implements ConfigurationInterface {
 							->info('Which request methods are allowed to be used in the request')
 						->end()
 						->arrayNode('allow_headers')
+							->defaultValue(['Content-Encoding', 'Content-Type', 'X-Auth'])
 							->scalarPrototype()->end()
 							->info('Which request headers are allowed to be used in the request')
 						->end()
